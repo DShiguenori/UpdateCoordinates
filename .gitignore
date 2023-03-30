@@ -2,3 +2,4 @@ node_modules
 excelIn
 excelOut
 .vscode
+.env
