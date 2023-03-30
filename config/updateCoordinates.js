@@ -1,20 +1,14 @@
 const axios = require('axios');
-const excelConfig = require('./excelConfig');
-const Excel = require('exceljs'); // https://github.com/exceljs/exceljs
+const Excel = require('exceljs');
 const fs = require('fs');
-const { func } = require('edge-js');
 require('dotenv').config();
 
 module.exports.start = async () => {
 	console.log('---------------------- Início da Leitura dos Arquivos ----------------------');
 
-	// Folder configs:
-	let cfg = {
-		folderInput: excelConfig.config.path.folderInput,
-		folderOutput: excelConfig.config.path.folderOutput,
-	};
-	let folderInput = `${cfg.folderInput}`;
-	let folderOutput = `${cfg.folderOutput}`;
+	// Folder configuration:
+	let folderInput = process.env.EXCEL_INPUT_FOLDER;
+	let folderOutput = process.env.EXCEL_OUTPUT_FOLDER;
 	let files = fs.readdirSync(folderInput);
 
 	// Leitura para cada Arquivo (filial)
