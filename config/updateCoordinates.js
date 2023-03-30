@@ -24,57 +24,66 @@ module.exports.start = async () => {
 		// Open the excel file, read each worksheet:
 		excelInput.eachSheet((inSheet, sheetId) => {
 			let outSheet = workbookOutput.addWorksheet('endereco_alunos_uptd');
+			const rowCount = inSheet.rowCount;
 
-			inSheet.eachRow(async (row, rowNumber) => {
-				if (rowNumber == 1) {
-					outSheet.addRow([
-						readCellString(row, 1),
-						readCellString(row, 2),
-						readCellString(row, 3),
-						readCellString(row, 4),
-						readCellString(row, 5),
-						readCellString(row, 6),
-						'latitude',
-						'longitude',
-					]);
-					return;
+			(async () => {
+				for (let rowNumber = 1; rowNumber <= rowCount; rowNumber++) {
+					const row = inSheet.getRow(rowNumber);
+					await processRow(row, rowNumber, outSheet);
 				}
 
-				let completeAddress = getCompleteAddress(row);
-
-				await sleep(1001); // Wait 1 second to not exceed the rate limit
-				let coordinates = await getCoordinatesBySearch(completeAddress);
-				if (coordinates == null) {
-					let googleCoordinates = await getCoordinatesFromGoogle(completeAddress);
-					if (googleCoordinates.latitude != null || googleCoordinates.longitude != null) {
-						console.log('Coordinates obtained via Google Maps API');
-						completeAddress.latitude = googleCoordinates.latitude;
-						completeAddress.longitude = googleCoordinates.longitude;
-					}
-				} else {
-					console.log('Coordinates obtained via OSM Nominatim API');
-					completeAddress.latitude = coordinates.latitude;
-					completeAddress.longitude = coordinates.longitude;
-				}
-				console.log(completeAddress.latitude + ' ' + completeAddress.longitude);
-
-				outSheet.addRow([
-					completeAddress.codigo_aluno,
-					completeAddress.logradouro_endereco,
-					completeAddress.bairro_endereco,
-					completeAddress.cidade_endereco,
-					completeAddress.uf_endereco,
-					completeAddress.cep,
-					completeAddress.latitude,
-					completeAddress.longitude,
-				]);
-			});
+				await workbookOutput.xlsx.writeFile(`${folderOutput}\\out_${file}`);
+				console.log(`FILE SAVED ${`${folderOutput}\\out_${file}`}`);
+			})();
 		});
-		await workbookOutput.xlsx.writeFile(`${folderOutput}\\out_${file}`);
-		console.log(`FILE SAVED ${`${folderOutput}\\out_${file}`}`);
 	}
 	console.log('---------------------- END READING FOLDERS AND THEIR FILES ----------------------');
 };
+
+async function processRow(row, rowNumber, outSheet) {
+	if (rowNumber == 1) {
+		outSheet.addRow([
+			readCellString(row, 1),
+			readCellString(row, 2),
+			readCellString(row, 3),
+			readCellString(row, 4),
+			readCellString(row, 5),
+			readCellString(row, 6),
+			'latitude',
+			'longitude',
+		]);
+		return;
+	}
+
+	let completeAddress = getCompleteAddress(row);
+
+	await sleep(1001); // Wait 1 second to not exceed the rate limit
+	let coordinates = await getCoordinatesBySearch(completeAddress);
+	if (coordinates == null) {
+		let googleCoordinates = await getCoordinatesFromGoogle(completeAddress);
+		if (googleCoordinates.latitude != null || googleCoordinates.longitude != null) {
+			console.log('Coordinates obtained via Google Maps API');
+			completeAddress.latitude = googleCoordinates.latitude;
+			completeAddress.longitude = googleCoordinates.longitude;
+		}
+	} else {
+		console.log('Coordinates obtained via OSM Nominatim API');
+		completeAddress.latitude = coordinates.latitude;
+		completeAddress.longitude = coordinates.longitude;
+	}
+	console.log(completeAddress.latitude + ' ' + completeAddress.longitude);
+
+	outSheet.addRow([
+		completeAddress.codigo_aluno,
+		completeAddress.logradouro_endereco,
+		completeAddress.bairro_endereco,
+		completeAddress.cidade_endereco,
+		completeAddress.uf_endereco,
+		completeAddress.cep,
+		completeAddress.latitude,
+		completeAddress.longitude,
+	]);
+}
 
 // Read a cell, outputs a string
 function readCellString(row, number) {
