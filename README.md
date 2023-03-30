@@ -23,3 +23,15 @@ See the .env.example
 ### Reminder!!!
 
 > Always open the excel file and Enable Editing
+
+### Documentacoes utilizadas
+
+#### Open Street Maps
+
+https://nominatim.org/release-docs/develop/api/Search/
+
+#### Google
+
+https://developers.google.com/maps/documentation/geocoding/start?hl=pt-br
+Verificar custos Google
+https://console.cloud.google.com/google/maps-apis/api-list?hl=pt-br&project=owtracker-216200
