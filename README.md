@@ -2,6 +2,12 @@
 
 This mini-project is used to update the adresses with the lat-lon coordinates
 
+### To Run the project
+
+Just run the command
+
+> npm start
+
 ### Order of execution:
 
 1. server.js
