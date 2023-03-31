@@ -2,19 +2,22 @@ const axios = require('axios');
 const Excel = require('exceljs');
 const fs = require('fs');
 require('dotenv').config();
+const path = require('path');
+const projectRoot = path.dirname(require.main.filename);
 
 module.exports.start = async () => {
-	console.log('---------------------- Início da Leitura dos Arquivos ----------------------');
+	console.log('---------------------- Starting ----------------------');
 
 	// Folder configuration:
-	let folderInput = process.env.EXCEL_INPUT_FOLDER;
-	let folderOutput = process.env.EXCEL_OUTPUT_FOLDER;
-	let files = fs.readdirSync(folderInput);
+	let EXCEL_INPUT_FOLDER = path.join(projectRoot, process.env.EXCEL_INPUT_FOLDER);
+	let EXCEL_OUTPUT_FOLDER = path.join(projectRoot, process.env.EXCEL_OUTPUT_FOLDER);
+
+	let files = fs.readdirSync(EXCEL_INPUT_FOLDER);
 
 	// Leitura para cada Arquivo (filial)
 	for (let file of files) {
-		let excelPathFile = `${folderInput}\\${file}`;
-		console.log(`-> REDING...   ${excelPathFile} `);
+		let excelPathFile = `${EXCEL_INPUT_FOLDER}\\${file}`;
+		console.log(`-> READING...   ${excelPathFile} `);
 
 		const excelInput = new Excel.Workbook();
 		await excelInput.xlsx.readFile(excelPathFile);
@@ -32,8 +35,8 @@ module.exports.start = async () => {
 					await processRow(row, rowNumber, outSheet);
 				}
 
-				await workbookOutput.xlsx.writeFile(`${folderOutput}\\out_${file}`);
-				console.log(`FILE SAVED ${`${folderOutput}\\out_${file}`}`);
+				await workbookOutput.xlsx.writeFile(`${EXCEL_OUTPUT_FOLDER}\\out_${file}`);
+				console.log(`FILE SAVED ${`${EXCEL_OUTPUT_FOLDER}\\out_${file}`}`);
 			})();
 		});
 	}
